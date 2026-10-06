@@ -6,7 +6,7 @@ class LSTMCritic(nn.Module):
 
     def __init__(
         self,
-        state_dim=8,
+        state_dim=6,
         hidden_dim=128,
         fc_dim=64,
         num_agents=2

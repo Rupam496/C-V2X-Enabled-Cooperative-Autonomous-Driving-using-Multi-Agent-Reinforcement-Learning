@@ -6,8 +6,8 @@ class MultiAgentRolloutBuffer:
     def __init__(
         self,
         num_agents=2,
-        obs_dim=7,
-        state_dim=8,
+        obs_dim=6,
+        state_dim=6,
         sequence_length=10
     ):
 
@@ -110,16 +110,15 @@ class MultiAgentRolloutBuffer:
                 observation_B
             ]
 
-        Each observation now contains 7 features:
+        Each observation contains 6 features:
 
             [
                 own_distance,
                 own_speed,
+                own_TTC,
                 other_distance,
                 other_speed,
-                own_TTC,
-                other_TTC,
-                other_passed
+                other_TTC
             ]
 
         actions:
@@ -147,7 +146,7 @@ class MultiAgentRolloutBuffer:
             ]
 
         state:
-            centralized 8-D state.
+            centralized 6-D state.
 
         done:
             Backward-compatible alias for episode_end.
@@ -847,8 +846,8 @@ if __name__ == "__main__":
 
     buffer = MultiAgentRolloutBuffer(
         num_agents=2,
-        obs_dim=7,
-        state_dim=8,
+        obs_dim=6,
+        state_dim=6,
         sequence_length=10
     )
 
@@ -859,17 +858,17 @@ if __name__ == "__main__":
     for t in range(12):
 
         # --------------------------------------------------
-        # 7-dimensional observations
+        # 6-dimensional observations
         # --------------------------------------------------
 
-        obs_A = np.ones(7) * t
+        obs_A = np.ones(6) * t
 
-        obs_B = np.ones(7) * (
+        obs_B = np.ones(6) * (
             100 + t
         )
 
-        # Centralized critic is 8-D
-        state = np.ones(8) * (
+        # Centralized critic is 6-D
+        state = np.ones(6) * (
             200 + t
         )
 
@@ -911,17 +910,17 @@ if __name__ == "__main__":
 
     for t in range(8):
 
-        # 7-dimensional observations
-        obs_A = np.ones(7) * (
+        # 6-dimensional observations
+        obs_A = np.ones(6) * (
             1000 + t
         )
 
-        obs_B = np.ones(7) * (
+        obs_B = np.ones(6) * (
             2000 + t
         )
 
-        # Centralized critic is 8-D
-        state = np.ones(8) * (
+        # Centralized critic is 6-D
+        state = np.ones(6) * (
             3000 + t
         )
 

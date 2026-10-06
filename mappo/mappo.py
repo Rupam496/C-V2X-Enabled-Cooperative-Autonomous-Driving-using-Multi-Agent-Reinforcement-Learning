@@ -11,8 +11,8 @@ class MAPPO:
 
     def __init__(
         self,
-        obs_dim=7,
-        state_dim=8,
+        obs_dim=6,
+        state_dim=6,
         action_dim=1,
         num_agents=2,
         sequence_length=10,
@@ -118,18 +118,17 @@ class MAPPO:
 
         With the current environment:
 
-            obs_dim = 7
+            obs_dim = 6
 
         Each observation contains:
 
             [
                 own_distance,
                 own_speed,
+                own_TTC,
                 other_distance,
                 other_speed,
-                own_TTC,
-                other_TTC,
-                other_passed
+                other_TTC
             ]
 
         Returns:
@@ -170,11 +169,11 @@ class MAPPO:
 
             # Add batch dimension
             #
-            # [10, 7]
+            # [10, 6]
             #
             # becomes
             #
-            # [1, 10, 7]
+            # [1, 10, 6]
 
             if observation.dim() == 2:
 
@@ -247,7 +246,7 @@ class MAPPO:
 
         Current state_dim:
 
-            8
+            6
 
         State:
 

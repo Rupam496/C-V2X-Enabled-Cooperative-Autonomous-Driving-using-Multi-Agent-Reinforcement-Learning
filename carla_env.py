@@ -1434,7 +1434,6 @@ class CarlaIntersectionEnv:
         # 3: other vehicle distance to conflict
         # 4: other vehicle speed
         # 5: other vehicle TTC
-        # 6: other vehicle passed
         #
         # This is explicitly SELF / OTHER structured.
         # ====================================================
@@ -1451,9 +1450,7 @@ class CarlaIntersectionEnv:
 
             speed_B,
 
-            ttc_B,
-
-            float(self.passed_B)
+            ttc_B
 
         ]
 
@@ -1468,7 +1465,6 @@ class CarlaIntersectionEnv:
         # 3: other vehicle distance to conflict
         # 4: other vehicle speed
         # 5: other vehicle TTC
-        # 6: other vehicle passed
         #
         # Agent B sees the same semantic feature ordering
         # as Agent A. Only the physical vehicle identities
@@ -1487,9 +1483,7 @@ class CarlaIntersectionEnv:
 
             speed_A,
 
-            ttc_A,
-
-            float(self.passed_A)
+            ttc_A
 
         ]
 
@@ -1935,7 +1929,7 @@ class CarlaIntersectionEnv:
 
         if newly_passed:
 
-            reward += PASS_REWARD
+            reward += PASS_REWARD    
 
 
         # ----------------------------------------------------

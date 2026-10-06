@@ -86,11 +86,8 @@ DIAGNOSTIC_CSV_FILE = "trajectory_diagnostics.csv"
 #     own_TTC,
 #     other_distance,
 #     other_speed,
-#     other_TTC,
-#     other_passed
+#     other_TTC
 # ]
-#
-# Therefore:
 #
 # Agent A:
 # [
@@ -99,8 +96,7 @@ DIAGNOSTIC_CSV_FILE = "trajectory_diagnostics.csv"
 #     TTC_A,
 #     dB,
 #     vB,
-#     TTC_B,
-#     B_passed
+#     TTC_B
 # ]
 #
 # Agent B:
@@ -110,11 +106,10 @@ DIAGNOSTIC_CSV_FILE = "trajectory_diagnostics.csv"
 #     TTC_B,
 #     dA,
 #     vA,
-#     TTC_A,
-#     A_passed
+#     TTC_A
 # ]
 
-OBS_DIM = 7
+OBS_DIM = 6
 
 
 # Centralized critic state:
@@ -125,12 +120,10 @@ OBS_DIM = 7
 #     dB,
 #     vB,
 #     TTC_A,
-#     TTC_B,
-#     A_passed,
-#     B_passed
+#     TTC_B
 # ]
 
-STATE_DIM = 8
+STATE_DIM = 6
 
 
 NUM_AGENTS = 2
@@ -143,7 +136,7 @@ NUM_AGENTS = 2
 def normalize_observation(obs):
 
     """
-    Normalize the 7-dimensional actor observation.
+    Normalize the 6-dimensional actor observation.
 
     Input:
 
@@ -153,8 +146,7 @@ def normalize_observation(obs):
             own_TTC,
             other_distance,
             other_speed,
-            other_TTC,
-            other_passed
+            other_TTC
         ]
 
     Normalization:
@@ -162,7 +154,6 @@ def normalize_observation(obs):
         distance      -> / 50
         speed         -> / 12
         TTC           -> / 100
-        passed        -> 0 or 1
 
     The values are clipped so that unexpected values
     cannot produce very large neural-network inputs.
@@ -217,16 +208,6 @@ def normalize_observation(obs):
 
     obs[5] = np.clip(
         obs[5] / 100.0,
-        0.0,
-        1.0
-    )
-
-    # --------------------------------------------------------
-    # Other vehicle passed flag
-    # --------------------------------------------------------
-
-    obs[6] = np.clip(
-        obs[6],
         0.0,
         1.0
     )
@@ -296,88 +277,54 @@ def build_centralized_state(
 ):
 
     """
-    Build the centralized 8-dimensional critic state.
+    Build the centralized 6-dimensional critic state.
 
     Agent A observation:
-
         [
             dA,
             vA,
             TTC_A,
             dB,
             vB,
-            TTC_B,
-            B_passed
+            TTC_B
         ]
 
     Agent B observation:
-
         [
             dB,
             vB,
             TTC_B,
             dA,
             vA,
-            TTC_A,
-            A_passed
+            TTC_A
         ]
 
     Centralized critic state:
-
         [
             dA,
             vA,
             dB,
             vB,
             TTC_A,
-            TTC_B,
-            A_passed,
-            B_passed
+            TTC_B
         ]
 
-    The first six values are already normalized because
+    The observations are already normalized because
     normalize_observation() is called before this function.
+
+    Passed flags are deliberately excluded from the critic input.
     """
 
     state = np.array(
-
         [
-
-            # ------------------------------------------------
-            # Car A
-            # ------------------------------------------------
-
-            obs_A[0],
-            obs_A[1],
-
-            # ------------------------------------------------
-            # Car B
-            # ------------------------------------------------
-
-            obs_B[0],
-            obs_B[1],
-
-            # ------------------------------------------------
-            # TTC
-            # ------------------------------------------------
-
-            obs_A[2],
-            obs_A[5],
-
-            # ------------------------------------------------
-            # Passed flags
-            # ------------------------------------------------
-
-            # A passed
-            obs_B[6],
-
-            # B passed
-            obs_A[6]
-
+            obs_A[0],   # distance A
+            obs_A[1],   # speed A
+            obs_B[0],   # distance B
+            obs_B[1],   # speed B
+            obs_A[2],   # TTC A
+            obs_B[2]    # TTC B
         ],
-
         dtype=np.float32
-
     )
 
     return state
@@ -723,14 +670,6 @@ def train():
             A_stopped_steps = 0
             B_stopped_steps = 0
 
-
-            # =================================================
-            # PASSED-STATUS DIAGNOSTIC FLAGS
-            # =================================================
-
-            A_passed_reported = False
-
-            B_passed_reported = False
 
             # Recovery diagnostics
             A_pass_step = None
@@ -1088,64 +1027,6 @@ def train():
                 # =============================================
                 # CHECK PASSED-VEHICLE INFORMATION
                 # =============================================
-
-                if (
-
-                    env.passed_A
-
-                    and
-
-                    not A_passed_reported
-
-                ):
-
-                    print()
-
-                    print(
-                        "========== A PASSED =========="
-                    )
-
-                    print(
-                        "B observation after A passed:",
-                        obs_B
-                    )
-
-                    print(
-                        "B other_passed feature:",
-                        obs_B[6]
-                    )
-
-                    A_passed_reported = True
-
-
-                if (
-
-                    env.passed_B
-
-                    and
-
-                    not B_passed_reported
-
-                ):
-
-                    print()
-
-                    print(
-                        "========== B PASSED =========="
-                    )
-
-                    print(
-                        "A observation after B passed:",
-                        obs_A
-                    )
-
-                    print(
-                        "A other_passed feature:",
-                        obs_A[6]
-                    )
-
-                    B_passed_reported = True
-
 
                 # =============================================
                 # UPDATE ACTOR HISTORIES
